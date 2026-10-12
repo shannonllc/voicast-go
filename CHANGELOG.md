@@ -1,6 +1,12 @@
 # Changelog
 
-## 0.1.0 (unreleased)
+## 0.2.0 (2026-10-12)
+
+- Retention period for call records and recordings: `Retention.Get` (`GET /v1/retention`) and `Retention.Update(ctx, RetentionUpdateParams{RetentionDays: 7})` (`PATCH /v1/retention`, retried like other PATCH requests). `RetentionDays` is 1, 7, 14 or 30 (30 by default and the maximum).
+- `UsageParams` takes `Channel`, `TenantID` and `ExternalID` filters, and `Usage.Filter` returns the filters applied.
+- `ToolTryParams.Tool`: a definition must carry its own `Auth.Value`; the agent's stored API key is used only with `ToolName` (422 `missing_api_key`).
+
+## 0.1.0 (2026-10-04)
 
 - First release. Same API coverage as the Node.js SDK 0.1.0 (without the browser helper `voicast/web`). Standard library only, Go 1.21+, every call takes a `context.Context`.
 - Agent tools for third-party APIs: `AgentTool` has `Method` (`GET` or `POST`), `Sign` (`voicast.Bool(false)` sends the arguments as they are), `Auth` (`*AgentToolAuth`; the key is stored encrypted and never returned) and `Confirm`. `Agent.ToolKeys` lists the stored keys (tool name and last 4 characters) on `Create`, `Get` and `Update`.

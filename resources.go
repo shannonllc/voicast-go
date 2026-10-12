@@ -253,7 +253,8 @@ type UsageService struct{ c *Client }
 // Get counts calls that ended in the period. Default: this month (Japan time) until now. params may be nil.
 func (s *UsageService) Get(ctx context.Context, params *UsageParams, opts ...RequestOption) (*Usage, error) {
 	p := derefOr(params)
-	return get[Usage](ctx, s.c, "/v1/usage", values("from", p.From, "to", p.To, "group_by", p.GroupBy), opts)
+	return get[Usage](ctx, s.c, "/v1/usage", values("from", p.From, "to", p.To, "group_by", p.GroupBy,
+		"channel", string(p.Channel), "tenant_id", p.TenantID, "external_id", p.ExternalID), opts)
 }
 
 // ConnectorsService lists the connectors that can be connected (/v1/connectors).
@@ -338,6 +339,22 @@ func (s *BillingService) Get(ctx context.Context, opts ...RequestOption) (*Billi
 // Not retried on a 5xx or a connection error.
 func (s *BillingService) CreateTopup(ctx context.Context, params TopupParams, opts ...RequestOption) (*Topup, error) {
 	return send[Topup](ctx, s.c, "POST", "/v1/billing/topups", params, false, opts)
+}
+
+// RetentionService reads and changes how long call records and recordings are kept in the API key's environment
+// (/v1/retention): 1, 7, 14 or 30 days (30 by default). Call records count from the end of the call, recordings
+// from when they were saved.
+type RetentionService struct{ c *Client }
+
+// Get returns the retention period.
+func (s *RetentionService) Get(ctx context.Context, opts ...RequestOption) (*Retention, error) {
+	return get[Retention](ctx, s.c, "/v1/retention", nil, opts)
+}
+
+// Update changes the retention period (1, 7, 14 or 30 days). When shortened, call records and recordings past the
+// new period are deleted at the next daily cleanup and cannot be restored. Usage and billing do not change.
+func (s *RetentionService) Update(ctx context.Context, params RetentionUpdateParams, opts ...RequestOption) (*Retention, error) {
+	return send[Retention](ctx, s.c, "PATCH", "/v1/retention", params, true, opts)
 }
 
 // ToolsService manages the signing secret for in-call tool requests (/v1/tools/secret, one per environment) and tests

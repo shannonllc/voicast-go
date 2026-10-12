@@ -36,6 +36,7 @@ type Client struct {
 	Webhooks    *WebhooksService
 	Billing     *BillingService
 	Tools       *ToolsService
+	Retention   *RetentionService
 
 	apiKey     string
 	baseURL    string
@@ -99,6 +100,7 @@ func NewClient(apiKey string, opts ...Option) (*Client, error) {
 	c.Webhooks = &WebhooksService{c}
 	c.Billing = &BillingService{c}
 	c.Tools = &ToolsService{c}
+	c.Retention = &RetentionService{c}
 	return c, nil
 }
 

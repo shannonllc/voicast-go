@@ -157,7 +157,7 @@ if err == nil && !r.OK {
 | `Calls.GetByProvider(ctx, providerCallID)` | `GET /v1/calls/by-provider/:providerCallId` |
 | `Calls.Transcript(ctx, id)` | `GET /v1/calls/:id/transcript` |
 | `Sessions.Create(ctx, SessionCreateParams)` | `POST /v1/sessions` |
-| `Usage.Get(ctx, *UsageParams)` | `GET /v1/usage` |
+| `Usage.Get(ctx, *UsageParams)` (`Channel`, `TenantID`, `ExternalID` filter) | `GET /v1/usage` |
 | `Connectors.List(ctx)` | `GET /v1/connectors` |
 | `Connections.List(ctx, *ConnectionListParams)` | `GET /v1/connections` |
 | `Connections.Create(ctx, ConnectionCreateParams)` | `POST /v1/connections` |
@@ -171,12 +171,18 @@ if err == nil && !r.OK {
 | `Tools.GetSecret(ctx)` | `GET /v1/tools/secret` |
 | `Tools.RotateSecret(ctx)` | `POST /v1/tools/secret/rotate` |
 | `Tools.Try(ctx, ToolTryParams)` | `POST /v1/tools/try` |
+| `Retention.Get(ctx)` | `GET /v1/retention` |
+| `Retention.Update(ctx, RetentionUpdateParams)` | `PATCH /v1/retention` |
 
 Every method also takes request options as trailing arguments: `WithRequestTimeout(d)`, `WithRequestMaxRetries(n)`. Pointer params may be `nil`.
 
 `TenantUpdateParams` sends only the fields you set. `AgentID: voicast.Null[string]()` removes the tenant's agent, `voicast.Value("agt_...")` sets it. `ConnectionListParams{}` lists every connection, `{TenantID: voicast.Null[string]()}` the environment's connections only, and `{TenantID: voicast.Value("ten_...")}` that tenant's.
 
 The call summary and category are on the `Call` (`Summary`, `Category`), filled in when `call.summary_ready` is sent, and `BilledYen` is the fee for the call.
+
+### Retention
+
+Call records (the call, transcript, collected fields, summary and delivery status) and recordings are deleted automatically after the environment's retention period: 1, 7, 14 or 30 days (30 by default), counted from the end of the call for records and from when they were saved for recordings. `Retention.Get` reads it and `Retention.Update(ctx, voicast.RetentionUpdateParams{RetentionDays: 7})` changes it for the API key's environment. Shortening it deletes records past the new period at the next daily cleanup; usage and billing do not change.
 
 ### Balance and top-ups
 

@@ -393,6 +393,19 @@ type UsageParams struct {
 	To string
 	// GroupBy is "tenant", "day" or "channel".
 	GroupBy string
+	// Channel keeps only "phone" or "web" calls. With GroupBy "tenant", phone minutes per tenant.
+	Channel CallChannel
+	// TenantID keeps only this tenant (ten_…).
+	TenantID string
+	// ExternalID keeps only the existing tenant with this external_id.
+	ExternalID string
+}
+
+// UsageFilter is the filters applied (nil when not given).
+type UsageFilter struct {
+	Channel    *CallChannel `json:"channel"`
+	TenantID   *string      `json:"tenant_id"`
+	ExternalID *string      `json:"external_id"`
 }
 
 // UsageTotals are counts for a period or a group.
@@ -426,6 +439,7 @@ type Usage struct {
 	From         int64       `json:"from"`
 	To           int64       `json:"to"`
 	GroupBy      *string     `json:"group_by"`
+	Filter       UsageFilter `json:"filter"`
 	UnitPriceYen float64     `json:"unit_price_yen"`
 	Total        UsageTotals `json:"total"`
 	// Data is empty when GroupBy is not given.
@@ -617,6 +631,21 @@ type Topup struct {
 	TaxYen    int64 `json:"tax_yen"`
 }
 
+// Retention is how long call records (from the end of the call) and recordings (from when they were saved) are
+// kept in the API key's environment.
+type Retention struct {
+	// RetentionDays is 1, 7, 14 or 30.
+	RetentionDays int `json:"retention_days"`
+	// Choices is the values you can set: [1, 7, 14, 30].
+	Choices []int `json:"choices"`
+}
+
+// RetentionUpdateParams changes the retention period. RetentionDays is 1, 7, 14 or 30 (30 is the default and the
+// maximum).
+type RetentionUpdateParams struct {
+	RetentionDays int `json:"retention_days"`
+}
+
 // ToolsSecret is the environment's signing secret for in-call tool requests.
 type ToolsSecret struct {
 	Secret string `json:"secret"`
@@ -628,7 +657,8 @@ type ToolsSecret struct {
 type ToolTryParams struct {
 	// ToolName is the Name of a tool saved in AgentID's agent.
 	ToolName string
-	// Tool is a tool definition. With AgentID, the agent's stored API key is used when Auth.Value is empty.
+	// Tool is a tool definition. It must carry its own Auth.Value: the agent's stored API key is used only with
+	// ToolName (a definition with Auth and no Value returns 422 missing_api_key).
 	Tool *AgentTool
 	// AgentID is required with ToolName.
 	AgentID string

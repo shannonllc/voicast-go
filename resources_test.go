@@ -264,6 +264,10 @@ func TestOthers(t *testing.T) {
 		_, err := c.Usage.Get(ctx, &UsageParams{From: "2026-10-01", To: "1790000000000", GroupBy: "day"})
 		return err
 	}, "GET", "/v1/usage", "from=2026-10-01&group_by=day&to=1790000000000", "")
+	check(t, "usage with filters", jsonReply(200, usage), func(c *Client) error {
+		_, err := c.Usage.Get(ctx, &UsageParams{GroupBy: "tenant", Channel: "phone", TenantID: "ten_1", ExternalID: "clinic-1"})
+		return err
+	}, "GET", "/v1/usage", "channel=phone&external_id=clinic-1&group_by=tenant&tenant_id=ten_1", "")
 	check(t, "connectors", jsonReply(200, map[string]any{"data": []any{map[string]any{"id": "google_calendar", "actions": []any{map[string]any{"tool": "gcal_find_free_slots"}}}}}), func(c *Client) error {
 		l, err := c.Connectors.List(ctx)
 		if err == nil && l.Data[0].Actions[0].Tool != "gcal_find_free_slots" {
@@ -321,6 +325,20 @@ func TestOthers(t *testing.T) {
 		}
 		return err
 	}, "POST", "/v1/billing/topups", "", `{"amount_yen":5000}`)
+	check(t, "retention", jsonReply(200, map[string]any{"retention_days": 7, "choices": []int{1, 7, 14, 30}}), func(c *Client) error {
+		r, err := c.Retention.Get(ctx)
+		if err == nil && (r.RetentionDays != 7 || len(r.Choices) != 4) {
+			t.Fatal(r)
+		}
+		return err
+	}, "GET", "/v1/retention", "", "")
+	check(t, "retention update", jsonReply(200, map[string]any{"retention_days": 14, "choices": []int{1, 7, 14, 30}}), func(c *Client) error {
+		r, err := c.Retention.Update(ctx, RetentionUpdateParams{RetentionDays: 14})
+		if err == nil && r.RetentionDays != 14 {
+			t.Fatal(r)
+		}
+		return err
+	}, "PATCH", "/v1/retention", "", `{"retention_days":14}`)
 	check(t, "tools secret", jsonReply(200, map[string]any{"secret": "whsec_x", "previous_secret_expires_at": nil}), func(c *Client) error {
 		ts, err := c.Tools.GetSecret(ctx)
 		if err == nil && (ts.Secret != "whsec_x" || ts.PreviousSecretExpiresAt != nil) {
