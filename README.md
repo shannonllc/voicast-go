@@ -154,6 +154,7 @@ if err == nil && !r.OK {
 | `Tenants.CreateConnectLink(ctx, id, *ConnectLinkParams)` | `POST /v1/tenants/:id/connect-links` |
 | `Tenants.CreateSipCredential(ctx, id, *SipCredentialCreateParams)` | `POST /v1/tenants/:id/sip-credentials` (the password is returned only here) |
 | `Tenants.ListSipCredentials(ctx, id)` | `GET /v1/tenants/:id/sip-credentials` |
+| `Tenants.UpdateSipCredential(ctx, id, credentialID, *SipCredentialUpdateParams)` | `PATCH /v1/tenants/:id/sip-credentials/:credential` |
 | `Tenants.DeleteSipCredential(ctx, id, credentialID)` | `DELETE /v1/tenants/:id/sip-credentials/:credential` |
 | `Calls.List(ctx, *CallListParams)` / `Calls.ListAll(*CallListParams)` | `GET /v1/calls` |
 | `Calls.Get(ctx, id)` | `GET /v1/calls/:id` |
@@ -179,7 +180,7 @@ if err == nil && !r.OK {
 
 Every method also takes request options as trailing arguments: `WithRequestTimeout(d)`, `WithRequestMaxRetries(n)`. Pointer params may be `nil`.
 
-`TenantUpdateParams` sends only the fields you set. `AgentID: voicast.Null[string]()` removes the tenant's agent, `voicast.Value("agt_...")` sets it. `ConnectionListParams{}` lists every connection, `{TenantID: voicast.Null[string]()}` the environment's connections only, and `{TenantID: voicast.Value("ten_...")}` that tenant's.
+`TenantUpdateParams` sends only the fields you set. `AgentID: voicast.Null[string]()` removes the tenant's agent, `voicast.Value("agt_...")` sets it. `SipCredentialUpdateParams` works the same way: `TransferTo: voicast.Null[string]()` turns the transfer off. `ConnectionListParams{}` lists every connection, `{TenantID: voicast.Null[string]()}` the environment's connections only, and `{TenantID: voicast.Value("ten_...")}` that tenant's.
 
 The call summary and category are on the `Call` (`Summary`, `Category`), filled in when `call.summary_ready` is sent, and `BilledYen` is the fee for the call.
 

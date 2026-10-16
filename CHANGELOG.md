@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0 (2026-10-16)
+
+- Transfer on a handoff for SIP: `SipCredential.TransferTo` (always present, empty for none) is where the PBX transfers the call with SIP REFER when the AI hands off to a person (outcome `handoff`): an extension or number (digits and `*` `#` `+`, up to 32 characters) or a SIP URI (`sip:` / `sips:`, up to 200 characters). `SipCredentialCreateParams.TransferTo`.
+- `Tenants.UpdateSipCredential(ctx, tenantID, credentialID, *SipCredentialUpdateParams)` (`PATCH /v1/tenants/:id/sip-credentials/:credential`, retried like other PATCH requests) changes only the fields that are set and returns the credentials without the password. `AgentID: Null[string]()` uses the tenant's agent; `TransferTo: Null[string]()` or `Value("")` turns the transfer off. Type `SipCredentialUpdateParams`.
+
 ## 0.3.0 (2026-10-16)
 
 - SIP credentials for a PBX that sends calls to `sip.voicast.jp`: `Tenants.CreateSipCredential(ctx, tenantID, *SipCredentialCreateParams)` (`POST /v1/tenants/:id/sip-credentials`, returns the password once, not retried on a 5xx or a connection error), `Tenants.ListSipCredentials(ctx, tenantID)` and `Tenants.DeleteSipCredential(ctx, tenantID, credentialID)`. Types `SipCredential`, `SipCredentialWithPassword` and `SipCredentialCreateParams`.

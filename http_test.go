@@ -273,6 +273,15 @@ func TestRetries(t *testing.T) {
 			calls: 2, sleeps: []time.Duration{500 * time.Millisecond},
 		},
 		{
+			name:    "updating SIP credentials is retried",
+			replies: []reply{dropReply, jsonReply(200, map[string]any{"id": "sipc_1"})},
+			op: func(c *Client) error {
+				_, err := c.Tenants.UpdateSipCredential(ctx, "ten_1", "sipc_1", &SipCredentialUpdateParams{TransferTo: Value("200")})
+				return err
+			},
+			calls: 2, sleeps: []time.Duration{500 * time.Millisecond},
+		},
+		{
 			name:    "creating links is retried",
 			replies: []reply{jsonReply(500, map[string]any{}), jsonReply(201, map[string]any{"url": "u"})},
 			op:      func(c *Client) error { _, err := c.Webhooks.CreatePortalLink(ctx, nil); return err },

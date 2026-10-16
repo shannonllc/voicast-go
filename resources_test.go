@@ -132,23 +132,39 @@ func TestTenants(t *testing.T) {
 	}, "POST", "/v1/tenants/ten_1/connect-links", "", `{"connectors":["google_calendar"],"frame_origin":"https://saas.example"}`)
 	sip := jsonReply(201, map[string]any{
 		"id": "sipc_1", "username": "sipc_1", "password": "pw", "realm": "voicast", "server": "sip.voicast.jp",
-		"tenant_id": "ten_1", "agent_id": nil, "name": "", "created_at": 1,
+		"tenant_id": "ten_1", "agent_id": nil, "name": "", "transfer_to": "200", "created_at": 1,
 	})
 	check(t, "create sip credential", sip, func(c *Client) error {
 		cr, err := c.Tenants.CreateSipCredential(ctx, "ten_1", nil)
-		if err == nil && (cr.Username != "sipc_1" || cr.Password != "pw" || cr.Realm != "voicast" || cr.Server != "sip.voicast.jp" || cr.AgentID != nil) {
+		if err == nil && (cr.Username != "sipc_1" || cr.Password != "pw" || cr.Realm != "voicast" || cr.Server != "sip.voicast.jp" || cr.AgentID != nil || cr.TransferTo != "200") {
 			t.Fatal(cr)
 		}
 		return err
 	}, "POST", "/v1/tenants/ten_1/sip-credentials", "", `{}`)
 	check(t, "create sip credential with options", sip, func(c *Client) error {
-		_, err := c.Tenants.CreateSipCredential(ctx, "ten_1", &SipCredentialCreateParams{Name: "本院の PBX", AgentID: "agt_1"})
+		_, err := c.Tenants.CreateSipCredential(ctx, "ten_1", &SipCredentialCreateParams{Name: "本院の PBX", AgentID: "agt_1", TransferTo: "sip:200@pbx.example.com"})
 		return err
-	}, "POST", "/v1/tenants/ten_1/sip-credentials", "", `{"name":"本院の PBX","agent_id":"agt_1"}`)
+	}, "POST", "/v1/tenants/ten_1/sip-credentials", "", `{"name":"本院の PBX","agent_id":"agt_1","transfer_to":"sip:200@pbx.example.com"}`)
 	check(t, "list sip credentials", jsonReply(200, emptyList), func(c *Client) error {
 		_, err := c.Tenants.ListSipCredentials(ctx, "ten_1")
 		return err
 	}, "GET", "/v1/tenants/ten_1/sip-credentials", "", "")
+	sipUpdated := jsonReply(200, map[string]any{"id": "sipc_1", "transfer_to": "200"})
+	check(t, "update sip credential (escaped)", sipUpdated, func(c *Client) error {
+		cr, err := c.Tenants.UpdateSipCredential(ctx, "ten_1", "sipc/1", &SipCredentialUpdateParams{TransferTo: Value("200")})
+		if err == nil && cr.TransferTo != "200" {
+			t.Fatal(cr)
+		}
+		return err
+	}, "PATCH", "/v1/tenants/ten_1/sip-credentials/sipc%2F1", "", `{"transfer_to":"200"}`)
+	check(t, "update sip credential clears the agent and the transfer", sipUpdated, func(c *Client) error {
+		_, err := c.Tenants.UpdateSipCredential(ctx, "ten_1", "sipc_1", &SipCredentialUpdateParams{Name: String("x"), AgentID: Null[string](), TransferTo: Null[string]()})
+		return err
+	}, "PATCH", "/v1/tenants/ten_1/sip-credentials/sipc_1", "", `{"agent_id":null,"name":"x","transfer_to":null}`)
+	check(t, "update sip credential nothing", sipUpdated, func(c *Client) error {
+		_, err := c.Tenants.UpdateSipCredential(ctx, "ten_1", "sipc_1", nil)
+		return err
+	}, "PATCH", "/v1/tenants/ten_1/sip-credentials/sipc_1", "", `{}`)
 	check(t, "delete sip credential (escaped)", rawReply(204, ""), func(c *Client) error {
 		return c.Tenants.DeleteSipCredential(ctx, "ten_1", "sipc/1")
 	}, "DELETE", "/v1/tenants/ten_1/sip-credentials/sipc%2F1", "", "")

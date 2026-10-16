@@ -269,9 +269,12 @@ type SipCredential struct {
 	Server   string `json:"server"`
 	TenantID string `json:"tenant_id"`
 	// AgentID is the agent that takes calls on these credentials. nil uses the tenant's agent.
-	AgentID   *string `json:"agent_id"`
-	Name      string  `json:"name"`
-	CreatedAt int64   `json:"created_at"`
+	AgentID *string `json:"agent_id"`
+	Name    string  `json:"name"`
+	// TransferTo is where the PBX transfers the call (with SIP REFER) when the AI hands off to a person (outcome
+	// handoff): an extension or number, or a SIP URI (sip: / sips:). Empty means no transfer.
+	TransferTo string `json:"transfer_to"`
+	CreatedAt  int64  `json:"created_at"`
 }
 
 // SipCredentialWithPassword is returned by Tenants.CreateSipCredential.
@@ -287,6 +290,33 @@ type SipCredentialCreateParams struct {
 	Name string `json:"name,omitempty"`
 	// AgentID is the agent that takes calls on these credentials. Empty uses the tenant's agent.
 	AgentID string `json:"agent_id,omitempty"`
+	// TransferTo is where the PBX transfers the call on a handoff: an extension or number (digits and * # +, up to
+	// 32 characters) or a SIP URI (sip: / sips:, up to 200 characters). Empty means no transfer.
+	TransferTo string `json:"transfer_to,omitempty"`
+}
+
+// SipCredentialUpdateParams sends only the fields that are set.
+type SipCredentialUpdateParams struct {
+	Name *string
+	// AgentID: Null[string]() uses the tenant's agent.
+	AgentID Nullable[string]
+	// TransferTo: Null[string]() or Value("") turns the transfer off.
+	TransferTo Nullable[string]
+}
+
+// MarshalJSON sends only the fields that are set.
+func (p SipCredentialUpdateParams) MarshalJSON() ([]byte, error) {
+	m := map[string]any{}
+	if p.Name != nil {
+		m["name"] = *p.Name
+	}
+	if p.AgentID.set {
+		m["agent_id"] = p.AgentID.jsonValue()
+	}
+	if p.TransferTo.set {
+		m["transfer_to"] = p.TransferTo.jsonValue()
+	}
+	return json.Marshal(m)
 }
 
 // ConnectLinkParams creates a link to the page where the business connects its services.

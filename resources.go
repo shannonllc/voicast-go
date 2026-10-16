@@ -203,6 +203,13 @@ func (s *TenantsService) ListSipCredentials(ctx context.Context, tenantID string
 	return get[List[SipCredential]](ctx, s.c, tenantPath(tenantID, "/sip-credentials"), nil, opts)
 }
 
+// UpdateSipCredential changes only the fields that are set and returns the credentials (without the password).
+// params may be nil. AgentID: Null[string]() uses the tenant's agent; TransferTo: Null[string]() or Value("") turns
+// the transfer off.
+func (s *TenantsService) UpdateSipCredential(ctx context.Context, tenantID, credentialID string, params *SipCredentialUpdateParams, opts ...RequestOption) (*SipCredential, error) {
+	return send[SipCredential](ctx, s.c, "PATCH", tenantPath(tenantID, "/sip-credentials/"+esc(credentialID)), derefOr(params), true, opts)
+}
+
 // DeleteSipCredential deletes SIP credentials. Calls on them are refused at once.
 func (s *TenantsService) DeleteSipCredential(ctx context.Context, tenantID, credentialID string, opts ...RequestOption) error {
 	return remove(ctx, s.c, tenantPath(tenantID, "/sip-credentials/"+esc(credentialID)), opts)
