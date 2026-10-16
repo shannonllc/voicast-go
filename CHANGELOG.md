@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0 (2026-10-16)
+
+- SIP credentials for a PBX that sends calls to `sip.voicast.jp`: `Tenants.CreateSipCredential(ctx, tenantID, *SipCredentialCreateParams)` (`POST /v1/tenants/:id/sip-credentials`, returns the password once, not retried on a 5xx or a connection error), `Tenants.ListSipCredentials(ctx, tenantID)` and `Tenants.DeleteSipCredential(ctx, tenantID, credentialID)`. Types `SipCredential`, `SipCredentialWithPassword` and `SipCredentialCreateParams`.
+
 ## 0.2.0 (2026-10-12)
 
 - Retention period for call records and recordings: `Retention.Get` (`GET /v1/retention`) and `Retention.Update(ctx, RetentionUpdateParams{RetentionDays: 7})` (`PATCH /v1/retention`, retried like other PATCH requests). `RetentionDays` is 1, 7, 14 or 30 (30 by default and the maximum).

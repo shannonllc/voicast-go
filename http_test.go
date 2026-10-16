@@ -364,6 +364,7 @@ func TestRetries(t *testing.T) {
 				func() error { _, err := c.Agents.Update(ctx, "a", AgentUpdateParams{}); return err },
 				func() error { _, err := c.Tenants.Create(ctx, TenantCreateParams{ExternalID: "x"}); return err },
 				func() error { _, err := c.Tenants.RotateSecret(ctx, "t"); return err },
+				func() error { _, err := c.Tenants.CreateSipCredential(ctx, "t", nil); return err },
 				func() error { _, err := c.Sessions.Create(ctx, SessionCreateParams{TenantID: "t"}); return err },
 				func() error {
 					_, err := c.Connections.Create(ctx, ConnectionCreateParams{Connector: "teams", Secret: "s"})

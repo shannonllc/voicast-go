@@ -257,6 +257,38 @@ type TenantSecret struct {
 	PreviousSecretExpiresAt int64 `json:"previous_secret_expires_at"`
 }
 
+// SipCredential is the Digest credentials for a PBX that sends calls over SIP to sip.voicast.jp.
+type SipCredential struct {
+	// ID is sipc_….
+	ID string `json:"id"`
+	// Username is the Digest user name (the same as ID).
+	Username string `json:"username"`
+	// Realm is the Digest realm ("voicast").
+	Realm string `json:"realm"`
+	// Server is where the PBX sends calls ("sip.voicast.jp").
+	Server   string `json:"server"`
+	TenantID string `json:"tenant_id"`
+	// AgentID is the agent that takes calls on these credentials. nil uses the tenant's agent.
+	AgentID   *string `json:"agent_id"`
+	Name      string  `json:"name"`
+	CreatedAt int64   `json:"created_at"`
+}
+
+// SipCredentialWithPassword is returned by Tenants.CreateSipCredential.
+type SipCredentialWithPassword struct {
+	SipCredential
+	// Password is the Digest password. Returned only here.
+	Password string `json:"password"`
+}
+
+// SipCredentialCreateParams creates SIP credentials.
+type SipCredentialCreateParams struct {
+	// Name tells the PBX apart (up to 100 characters).
+	Name string `json:"name,omitempty"`
+	// AgentID is the agent that takes calls on these credentials. Empty uses the tenant's agent.
+	AgentID string `json:"agent_id,omitempty"`
+}
+
 // ConnectLinkParams creates a link to the page where the business connects its services.
 type ConnectLinkParams struct {
 	// Connectors to show. Default: every connector that is not env_only.

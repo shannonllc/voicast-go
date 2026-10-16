@@ -130,6 +130,28 @@ func TestTenants(t *testing.T) {
 		_, err := c.Tenants.CreateConnectLink(ctx, "ten_1", &ConnectLinkParams{Connectors: []string{"google_calendar"}, FrameOrigin: "https://saas.example"})
 		return err
 	}, "POST", "/v1/tenants/ten_1/connect-links", "", `{"connectors":["google_calendar"],"frame_origin":"https://saas.example"}`)
+	sip := jsonReply(201, map[string]any{
+		"id": "sipc_1", "username": "sipc_1", "password": "pw", "realm": "voicast", "server": "sip.voicast.jp",
+		"tenant_id": "ten_1", "agent_id": nil, "name": "", "created_at": 1,
+	})
+	check(t, "create sip credential", sip, func(c *Client) error {
+		cr, err := c.Tenants.CreateSipCredential(ctx, "ten_1", nil)
+		if err == nil && (cr.Username != "sipc_1" || cr.Password != "pw" || cr.Realm != "voicast" || cr.Server != "sip.voicast.jp" || cr.AgentID != nil) {
+			t.Fatal(cr)
+		}
+		return err
+	}, "POST", "/v1/tenants/ten_1/sip-credentials", "", `{}`)
+	check(t, "create sip credential with options", sip, func(c *Client) error {
+		_, err := c.Tenants.CreateSipCredential(ctx, "ten_1", &SipCredentialCreateParams{Name: "本院の PBX", AgentID: "agt_1"})
+		return err
+	}, "POST", "/v1/tenants/ten_1/sip-credentials", "", `{"name":"本院の PBX","agent_id":"agt_1"}`)
+	check(t, "list sip credentials", jsonReply(200, emptyList), func(c *Client) error {
+		_, err := c.Tenants.ListSipCredentials(ctx, "ten_1")
+		return err
+	}, "GET", "/v1/tenants/ten_1/sip-credentials", "", "")
+	check(t, "delete sip credential (escaped)", rawReply(204, ""), func(c *Client) error {
+		return c.Tenants.DeleteSipCredential(ctx, "ten_1", "sipc/1")
+	}, "DELETE", "/v1/tenants/ten_1/sip-credentials/sipc%2F1", "", "")
 
 	n := Nullable[string]{}
 	if n.IsSet() || n.IsNull() || !Null[string]().IsNull() || Value("x").IsNull() || !Value("x").IsSet() {

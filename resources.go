@@ -191,6 +191,23 @@ func (s *TenantsService) CreateConnectLink(ctx context.Context, tenantID string,
 	return send[Link](ctx, s.c, "POST", tenantPath(tenantID, "/connect-links"), derefOr(params), true, opts)
 }
 
+// CreateSipCredential creates Digest credentials for a PBX that sends calls over SIP to sip.voicast.jp. params may be
+// nil. The password is returned only here. Not retried on a 5xx or a connection error (a retry would make a second
+// credential).
+func (s *TenantsService) CreateSipCredential(ctx context.Context, tenantID string, params *SipCredentialCreateParams, opts ...RequestOption) (*SipCredentialWithPassword, error) {
+	return send[SipCredentialWithPassword](ctx, s.c, "POST", tenantPath(tenantID, "/sip-credentials"), derefOr(params), false, opts)
+}
+
+// ListSipCredentials lists the tenant's SIP credentials (without passwords).
+func (s *TenantsService) ListSipCredentials(ctx context.Context, tenantID string, opts ...RequestOption) (*List[SipCredential], error) {
+	return get[List[SipCredential]](ctx, s.c, tenantPath(tenantID, "/sip-credentials"), nil, opts)
+}
+
+// DeleteSipCredential deletes SIP credentials. Calls on them are refused at once.
+func (s *TenantsService) DeleteSipCredential(ctx context.Context, tenantID, credentialID string, opts ...RequestOption) error {
+	return remove(ctx, s.c, tenantPath(tenantID, "/sip-credentials/"+esc(credentialID)), opts)
+}
+
 // CallsService reads calls (/v1/calls), newest first.
 type CallsService struct{ c *Client }
 

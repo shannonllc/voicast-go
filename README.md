@@ -152,6 +152,9 @@ if err == nil && !r.OK {
 | `Tenants.Delete(ctx, id)` | `DELETE /v1/tenants/:id` |
 | `Tenants.ListConnections(ctx, id)` | `GET /v1/tenants/:id/connections` |
 | `Tenants.CreateConnectLink(ctx, id, *ConnectLinkParams)` | `POST /v1/tenants/:id/connect-links` |
+| `Tenants.CreateSipCredential(ctx, id, *SipCredentialCreateParams)` | `POST /v1/tenants/:id/sip-credentials` (the password is returned only here) |
+| `Tenants.ListSipCredentials(ctx, id)` | `GET /v1/tenants/:id/sip-credentials` |
+| `Tenants.DeleteSipCredential(ctx, id, credentialID)` | `DELETE /v1/tenants/:id/sip-credentials/:credential` |
 | `Calls.List(ctx, *CallListParams)` / `Calls.ListAll(*CallListParams)` | `GET /v1/calls` |
 | `Calls.Get(ctx, id)` | `GET /v1/calls/:id` |
 | `Calls.GetByProvider(ctx, providerCallID)` | `GET /v1/calls/by-provider/:providerCallId` |
@@ -239,7 +242,7 @@ if errors.As(err, &e) && e.Kind == voicast.KindPaymentRequired && e.Code == "bal
 
 ## Retries and timeouts
 
-`WithTimeout(30*time.Second)` and `WithMaxRetries(2)` are the defaults. 429 is retried for every request, waiting `retry-after` (up to one minute). 5xx, timeouts and connection errors are retried only for requests safe to repeat (GET, PATCH, DELETE, and creating links), with exponential backoff from 0.5 s. Creating agents, tenants, sessions, connections and top-ups, updating an agent and rotating a secret are not retried on those, so they never run twice. The API does not take an `Idempotency-Key`. Cancelling the context stops the request and any wait.
+`WithTimeout(30*time.Second)` and `WithMaxRetries(2)` are the defaults. 429 is retried for every request, waiting `retry-after` (up to one minute). 5xx, timeouts and connection errors are retried only for requests safe to repeat (GET, PATCH, DELETE, and creating links), with exponential backoff from 0.5 s. Creating agents, tenants, sessions, connections, SIP credentials and top-ups, updating an agent and rotating a secret are not retried on those, so they never run twice. The API does not take an `Idempotency-Key`. Cancelling the context stops the request and any wait.
 
 ## Links
 
