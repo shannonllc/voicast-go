@@ -27,7 +27,7 @@ func Example() {
 			Fields:      []voicast.AgentField{{Key: "name", Label: "お名前", Required: true}, {Key: "phone", Label: "電話番号", Type: "phone"}},
 			HandoffWhen: []string{"急患"},
 			Closing:     "承りました。担当者から折り返しご連絡します。",
-			Voice:       "Kore",
+			Voice:       "female-firm",
 		},
 	})
 	if err != nil {

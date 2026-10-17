@@ -4,7 +4,7 @@ Go SDK for [voicast](https://voicast.jp/), the headless conversational AI platfo
 
 - Standard library only.
 - Go 1.21+. Every call takes a `context.Context`.
-- Server-side only. To talk from a browser, create a session here and use `voicast/web` from the [Node.js SDK](https://www.npmjs.com/package/voicast) (or any Pipecat SmallWebRTC client) in the browser.
+- Server-side only. To talk from a browser, create a session here and use `voicast/web` from the [Node.js SDK](https://www.npmjs.com/package/voicast) in the browser.
 
 ## Install
 
@@ -36,7 +36,7 @@ agent, err := client.Agents.Create(ctx, voicast.AgentCreateParams{
 		},
 		HandoffWhen: []string{"急患", "担当者と話したいと言われた"},
 		Closing:     "承りました。担当者から折り返しご連絡します。",
-		Voice:       "Kore",
+		Voice:       "female-firm",
 	},
 })
 

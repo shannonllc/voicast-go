@@ -89,7 +89,7 @@ type Error struct {
 	Code string
 	// Details is extra information from the API, such as the list of invalid fields for a 422. nil when absent.
 	Details json.RawMessage
-	// RequestID (x-request-id, or Cloudflare's cf-ray) to quote when contacting support.
+	// RequestID (x-request-id) to quote when contacting support.
 	RequestID string
 	// RetryAfter is the wait from retry-after on a 429, or nil.
 	RetryAfter *time.Duration

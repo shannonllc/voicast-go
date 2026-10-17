@@ -2,7 +2,7 @@ package voicast
 
 import "encoding/json"
 
-// Request and response shapes of /v1 (docs/api.md). Times are Unix milliseconds.
+// Request and response shapes of /v1 (see the API reference). Times are Unix milliseconds.
 
 // List is a list that is not paged.
 type List[T any] struct {
@@ -97,8 +97,14 @@ type AgentTool struct {
 	// Auth sends an API key with every request.
 	Auth       *AgentToolAuth       `json:"auth,omitempty"`
 	Parameters *AgentToolParameters `json:"parameters,omitempty"`
-	// Confirm: the AI reads out the details and uses the tool only after the caller agrees.
+	// Confirm: voicast asks the caller with a fixed confirmation message made from the arguments, runs the tool only
+	// after the caller agrees, and tells the result in a fixed message.
 	Confirm bool `json:"confirm,omitempty"`
+	// ConfirmMessage is the confirmation message template for a Confirm tool (up to 200 characters).
+	// "{argument name}" inserts the value; date and time values are read as spoken dates.
+	ConfirmMessage string `json:"confirm_message,omitempty"`
+	// DoneMessage is said when a Confirm tool succeeds (up to 200 characters, "{argument name}" can be inserted).
+	DoneMessage string `json:"done_message,omitempty"`
 }
 
 // AgentConnectorEntry is a connector used by the agent. Connector picks a preset (the tenant's connection, else the
@@ -137,7 +143,7 @@ type AgentConfig struct {
 	Domain string `json:"domain,omitempty"`
 	// Vocabulary are terms (speech recognition hint).
 	Vocabulary []string `json:"vocabulary,omitempty"`
-	// Voice is a Chirp 3 HD Japanese voice name, such as "Aoede" (default) or "Kore".
+	// Voice is a voice ID, such as "female-breezy" (default), "female-firm" or "male-calm".
 	Voice string `json:"voice,omitempty"`
 	// SpeakingRate is 0.85, 0.9, 0.95, 1, 1.05, 1.1, 1.15 (default), 1.2, 1.25, 1.3, 1.4 or 1.5. 0 is not sent.
 	SpeakingRate float64               `json:"speaking_rate,omitempty"`

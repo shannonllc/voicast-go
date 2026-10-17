@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// The vectors are signed like apps/voice/tools.py and by the Node SDK, with results decided by the Node SDK
+// The vectors are signed like voicast and by the Node SDK, with results decided by the Node SDK
 // (scripts/sdk-vectors.mjs). The same file is used by the Python and PHP SDKs.
 type vector struct {
 	Name      string            `json:"name"`
@@ -131,7 +131,7 @@ func find(t *testing.T, name string) vector {
 }
 
 func TestSignMatchesToolsPyAndNode(t *testing.T) {
-	for _, name := range []string{"signed like tools.py", "signed by the node sdk", "standard webhooks spec vector"} {
+	for _, name := range []string{"signed like voicast", "signed by the node sdk", "standard webhooks spec vector"} {
 		v := find(t, name)
 		w, _ := NewWebhook(v.secrets()[0], WithSecrets("whsec_dGhpcyBpcyBhbm90aGVyIHNlY3JldCBrZXk="))
 		ts, _ := strconv.ParseInt(v.Headers["webhook-timestamp"], 10, 64)
@@ -255,7 +255,7 @@ func TestVerifyFunctions(t *testing.T) {
 }
 
 func TestHeaderForms(t *testing.T) {
-	v := find(t, "signed like tools.py")
+	v := find(t, "signed like voicast")
 	w := v.webhook(t)
 	// a map literal with lowercase keys (not canonicalised by Set)
 	lower := http.Header{}

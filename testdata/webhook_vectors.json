@@ -29,7 +29,7 @@
       "error": "No matching signature found"
     },
     {
-      "name": "signed like tools.py",
+      "name": "signed like voicast",
       "secret": "whsec_MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw",
       "payload": "{\"type\":\"call.ended\",\"timestamp\":\"2026-10-03T00:00:00.000Z\",\"data\":{\"id\":\"call_1\",\"tenant_id\":\"ten_1\",\"outcome\":\"completed\",\"fields\":{\"name\":\"山田 太郎\"},\"tenant\":{\"id\":\"ten_1\",\"external_id\":\"clinic-1\"}}}",
       "headers": {
